@@ -1,8 +1,5 @@
 package com.example.subramanyam.popularmoviespart2;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -46,28 +43,36 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        isInternetOn();
+        recyclerView = findViewById(R.id.movieImages);
+        GridLayoutManager gridLayoutManager=new GridLayoutManager(this,getSpan());
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.hasFixedSize();
+        if(savedInstanceState==null)
+        {
+            viewData();
+            isInternetOn();
+        }else
+        {
+            checkSortOrder();
+
+        }
+
     }
 
 
-    public Activity getActivity() {
-        Context context = this;
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                return (Activity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-        return null;
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        checkSortOrder();
     }
 
     public void viewData() {
 
-        recyclerView = findViewById(R.id.movieImages);
+
         resultsItems = new ArrayList<>();
         movieView = new MovieView(this, resultsItems);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this, getSpan()));
+
         recyclerView.setAdapter(movieView);
         movieView.notifyDataSetChanged();
 
@@ -76,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     public void viewData2() {
         FavoriteAdapter adapter = new FavoriteAdapter();
-        recyclerView = findViewById(R.id.movieImages);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, getSpan()));
+
+
         recyclerView.setAdapter(adapter);
         getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, new FavoriteCursorLoader(this, adapter));
 

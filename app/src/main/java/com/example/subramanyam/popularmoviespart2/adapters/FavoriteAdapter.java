@@ -46,8 +46,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         cursor.moveToPosition(position);
+
         String posterPath=cursor.getString(cursor.getColumnIndex(FavoriteContract.FavouriMovCon.COLUMN_POSTER_PATH));
         Picasso.with(holder.favImage.getContext()).load("http://image.tmdb.org/t/p/w185/"+posterPath).into(holder.favImage);
+
     }
 
     @Override
@@ -56,6 +58,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
        {
            return 0;
        }
+
        return cursor.getCount();
     }
 

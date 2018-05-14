@@ -65,7 +65,6 @@ public class DetailsView extends AppCompatActivity {
     ReviewView reviewView;
 
 
-    private FavMovDBHelper favMovDBHelper;
     private final DetailsView activity=DetailsView.this;
     private MovieItem favorite;
     MaterialFavoriteButton favorite1;
@@ -93,10 +92,7 @@ public class DetailsView extends AppCompatActivity {
         setDetails(items);
 
 
-
-
-
-              favMovDBHelper=new FavMovDBHelper(this)  ;
+        FavMovDBHelper favMovDBHelper = new FavMovDBHelper(this);
               if(FavoriteMovieDB(items))
               {
                  changeToFilledFavIcon();
@@ -259,7 +255,7 @@ public class DetailsView extends AppCompatActivity {
     public boolean FavoriteMovieDB(List<MovieItem> item)
     {
         Cursor cursor=getContentResolver().query(FavoriteContract.FavouriMovCon.CONTENT_URI,
-                null,null,null,null,null);
+                null,null,null,null);
         if(cursor != null)
         {
             while (cursor.moveToNext())

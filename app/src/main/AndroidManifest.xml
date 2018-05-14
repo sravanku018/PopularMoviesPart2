@@ -23,11 +23,11 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
+
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".DetailsView"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            />
 
         <provider
             android:name=".database.MyContentProvider"

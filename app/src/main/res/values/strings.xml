@@ -58,6 +58,7 @@
     <string name="trailerno">TextView</string>
     <string name="reviews">TextView</string>
     <string name="favorite">Favorite Movies</string>
+    <string name="favoriteimages">favoriteImages</string>
 
 
 </resources>

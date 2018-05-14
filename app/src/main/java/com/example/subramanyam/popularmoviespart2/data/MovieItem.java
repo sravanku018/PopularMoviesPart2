@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class MovieItem{
+public class MovieItem {
 
 	@SerializedName("overview")
 	private String overview;
@@ -124,7 +124,7 @@ public class MovieItem{
 		this.voteAverage = voteAverage;
 	}
 
-	public Double getVoteAverage(){
+	public double getVoteAverage(){
 		return voteAverage;
 	}
 
@@ -163,13 +163,13 @@ public class MovieItem{
 	@Override
  	public String toString(){
 		return 
-			"ResultsItem{" + 
-			"overview = '" + overview + '\'' + 
+			"{" +
+			" overview = '" + overview + '\'' +
 			",original_language = '" + originalLanguage + '\'' + 
 			",original_title = '" + originalTitle + '\'' + 
 			",video = '" + video + '\'' + 
 			",title = '" + title + '\'' + 
-			",genre_ids = '" + genreIds + '\'' + 
+
 			",poster_path = '" + posterPath + '\'' + 
 			",backdrop_path = '" + backdropPath + '\'' + 
 			",release_date = '" + releaseDate + '\'' + 

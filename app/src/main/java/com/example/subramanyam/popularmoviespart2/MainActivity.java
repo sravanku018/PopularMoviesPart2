@@ -1,13 +1,12 @@
 package com.example.subramanyam.popularmoviespart2;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -19,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.subramanyam.popularmoviespart2.adapters.FavoriteAdapter;
 import com.example.subramanyam.popularmoviespart2.adapters.MovieView;
 import com.example.subramanyam.popularmoviespart2.api.Client;
 import com.example.subramanyam.popularmoviespart2.api.Service;
@@ -37,9 +37,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private RecyclerView recyclerView;
     private MovieView movieView;
     private List<MovieItem> resultsItems;
-    private AppCompatActivity activity=MainActivity.this;
+    private AppCompatActivity activity = MainActivity.this;
     private FavMovDBHelper favMovDBHelper;
 
+    public static final int ID_FAVORITES_LOADER = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,41 +49,38 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         isInternetOn();
     }
 
-    public Activity getActivity()
-    {
+
+    public Activity getActivity() {
         Context context = this;
-        while (context instanceof ContextWrapper){
-            if (context instanceof Activity){
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
                 return (Activity) context;
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
     }
+
     public void viewData() {
 
         recyclerView = findViewById(R.id.movieImages);
         resultsItems = new ArrayList<>();
         movieView = new MovieView(this, resultsItems);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, getSpan()));
         recyclerView.setAdapter(movieView);
         movieView.notifyDataSetChanged();
-        favMovDBHelper=new FavMovDBHelper(activity);
+
         checkSortOrder();
     }
 
-    public void viewData2()
-    {
+    public void viewData2() {
+        FavoriteAdapter adapter = new FavoriteAdapter();
         recyclerView = findViewById(R.id.movieImages);
-        resultsItems = new ArrayList<>();
-        movieView = new MovieView(this, resultsItems);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, getSpan()));
+        recyclerView.setAdapter(adapter);
+        getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, new FavoriteCursorLoader(this, adapter));
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setAdapter(movieView);
-        movieView.notifyDataSetChanged();
-        favMovDBHelper=new FavMovDBHelper(activity);
-        getAllFavorites();
 
     }
 
@@ -145,14 +143,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.menu_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
@@ -161,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         checkSortOrder();
@@ -173,15 +172,27 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 this.getString(R.string.pref_most_popular));
         if (sortOrder.equals(this.getString(R.string.pref_most_popular))) {
             loadData();
-        }else if(sortOrder.equals(this.getString(R.string.favorite)))
-        {
+        } else if (sortOrder.equals(this.getString(R.string.favorite))) {
             viewData2();
-        }
-
-        else {
+        } else {
             loadData2();
         }
     }
+
+    private int getSpan() {
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+            return 4;
+
+        }else {
+            return 2;
+        }
+
+
+
+    }
+
 
     public final boolean isInternetOn() {
 
@@ -198,14 +209,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                 // if connected with internet
                 viewData();
-                onResume();
-
 
                 return true;
 
             } else if (
                     connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.DISCONNECTED ||
                             connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.DISCONNECTED) {
+
 
                 Toast.makeText(this, " Not Connected ", Toast.LENGTH_LONG).show();
                 return false;
@@ -214,38 +224,20 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return false;
     }
 
-    @Override
-    public void onResume(){
+   @Override
+    public void onResume() {
+
         super.onResume();
-        if (resultsItems.isEmpty()){
+        if (isInternetOn()) {
+            if (resultsItems.isEmpty()) {
+                checkSortOrder();
+            } else {
+                checkSortOrder();
+            }
 
-            checkSortOrder();
-
-        }else{
-
-            checkSortOrder();
 
         }
     }
-    @SuppressLint("StaticFieldLeak")
-    public void getAllFavorites()
-    {
-        new AsyncTask<Void,Void,Void>(){
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-                resultsItems.clear();
-                resultsItems.addAll(favMovDBHelper.getAllFavorite());
-                return  null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                movieView.notifyDataSetChanged();
-            }
-        }.execute();
-
-    }
 
 }

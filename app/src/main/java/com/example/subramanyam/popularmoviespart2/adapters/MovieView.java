@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,20 +47,8 @@ public class MovieView extends RecyclerView.Adapter<MovieView.ViewHolder> {
 
         Picasso.with(context).load("http://image.tmdb.org/t/p/w185/"+list.get(position).getPosterPath()).into(holder.imageView);
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(context, DetailsView.class);
-                intent.putExtra("movieImage",list.get(position).getPosterPath());
-                intent.putExtra("movieName",list.get(position).getTitle());
-                intent.putExtra("releaseDate",list.get(position).getReleaseDate());
-                intent.putExtra("ratings",Double.toString(list.get(position).getVoteAverage()));
-                intent.putExtra("review",list.get(position).getOverview());
-                intent.putExtra("movieId",list.get(position).getId());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-            }
-        });
+
+
 
     }
 
@@ -70,12 +59,22 @@ public class MovieView extends RecyclerView.Adapter<MovieView.ViewHolder> {
         return list.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView imageView;
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             imageView=itemView.findViewById(R.id.imageView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent=new Intent(v.getContext(),DetailsView.class);
+            MovieItem movieItem=list.get(getAdapterPosition());
+            intent.putExtra("movieDetails", String.valueOf(movieItem));
+            Log.i("sdkjfhs dhfd", String.valueOf(movieItem));
+            v.getContext().startActivity(intent);
         }
     }
 }

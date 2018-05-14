@@ -1,14 +1,16 @@
 package com.example.subramanyam.popularmoviespart2;
 
-import android.content.SharedPreferences;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +25,13 @@ import com.example.subramanyam.popularmoviespart2.data.ReviewResponse;
 import com.example.subramanyam.popularmoviespart2.data.TrailerData;
 import com.example.subramanyam.popularmoviespart2.data.TrailerResponse;
 import com.example.subramanyam.popularmoviespart2.database.FavMovDBHelper;
+import com.example.subramanyam.popularmoviespart2.database.FavoriteContract;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -64,6 +69,10 @@ public class DetailsView extends AppCompatActivity {
     private final DetailsView activity=DetailsView.this;
     private MovieItem favorite;
     MaterialFavoriteButton favorite1;
+    ImageButton imageFavorite;
+    List<MovieItem> items;
+    Gson gson;
+    String array;
 
 
 
@@ -72,52 +81,53 @@ public class DetailsView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_view);
         ButterKnife.bind(this);
+        imageFavorite=findViewById(R.id.imageButton);
+        gson=new Gson();
 
-        movieImages = getIntent().getExtras().getString("movieImage");
-        title1 = getIntent().getExtras().getString("movieName");
-        releaseDate1 = getIntent().getExtras().getString("releaseDate");
-        ratings1 = getIntent().getExtras().getString("ratings");
-        review1 = getIntent().getExtras().getString("review");
+        Bundle movieData=getIntent().getExtras();
+        array= getIntent().getStringExtra("movieDetails");
 
-        Picasso.with(getApplicationContext()).load("http://image.tmdb.org/t/p/w185/"+movieImages).into(movieImage);
-        title.setText(title1);
-        releaseDate.setText(releaseDate1);
-        ratings.setText(ratings1);
-        review.setText(review1);
+        Log.i("irkjafh", String.valueOf(items));
 
-
-                favorite1 = findViewById(R.id.favButton);
-
-
-        final SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        favorite1.setOnFavoriteChangeListener(
-                new MaterialFavoriteButton.OnFavoriteChangeListener() {
-                    @Override
-                    public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
-                        if(favorite)
-                        {
+        items= Collections.singletonList(gson.fromJson(array, MovieItem.class));
+        setDetails(items);
 
 
 
-                            SharedPreferences.Editor editor=  getSharedPreferences("com.example.subramanyam.popularmoviespart2.DetailsView",MODE_PRIVATE).edit();
-                            editor.putBoolean("Added Favorite",true);
-                            editor.apply();
-                            saveFavorite();
-                          Snackbar.make(buttonView,"Added to Favorite", Snackbar.LENGTH_LONG).show();
-                        }else {
-                            int movieid1=getIntent().getExtras().getInt("movieId");
-                            favMovDBHelper=new FavMovDBHelper(DetailsView.this);
-                            favMovDBHelper.deleteFavorite(movieid1);
-                            SharedPreferences.Editor editor= getSharedPreferences("com.example.subramanyam.popularmoviespart2.DetailsView",MODE_PRIVATE).edit();
 
-                            editor.putBoolean("Removed Favorite",false);
-                            editor.apply();
 
-                         Snackbar.make(buttonView,"Removed from Favorites",Snackbar.LENGTH_LONG).show();
-                        }
-                    }
+              favMovDBHelper=new FavMovDBHelper(this)  ;
+              if(FavoriteMovieDB(items))
+              {
+                 changeToFilledFavIcon();
+              }else
+              {
+                  changeToEmptyFavIcon();
+              }
 
-                });
+
+
+              imageFavorite.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                      if(!FavoriteMovieDB(items))
+                      {
+                          changeToFilledFavIcon();
+                          saveFavorite(items);
+                          Snackbar.make(v,"Added to Favorite", Snackbar.LENGTH_LONG).show();
+                      }else
+                      {
+                          changeToEmptyFavIcon();
+                          deleteMovies(items);
+                          Snackbar.make(v,"Deleted from Favorite", Snackbar.LENGTH_LONG).show();
+
+                      }
+
+                  }
+              });
+
+
+
         trailer();
         review();
 
@@ -125,6 +135,20 @@ public class DetailsView extends AppCompatActivity {
 
     }
 
+
+    private void changeToEmptyFavIcon() {
+
+        imageFavorite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+
+    }
+
+
+
+    private void changeToFilledFavIcon() {
+
+        imageFavorite.setImageResource(R.drawable.ic_favorite_black_24dp);
+
+    }
     public void trailer() {
 
 
@@ -138,7 +162,7 @@ public class DetailsView extends AppCompatActivity {
     }
 
     public void loadTrailer() {
-        int id = getIntent().getExtras().getInt("movieId");
+        int id = items.get(0).getId();
         Client Client = new Client();
 
 
@@ -182,7 +206,7 @@ public class DetailsView extends AppCompatActivity {
 
     public void loadReview() {
 
-        int id = getIntent().getExtras().getInt("movieId");
+        int id = items.get(0).getId();
         Client Client = new Client();
 
 
@@ -213,21 +237,52 @@ public class DetailsView extends AppCompatActivity {
 
 
 
-    public void saveFavorite() {
-        favMovDBHelper=new FavMovDBHelper(activity);
-        favorite=new MovieItem();
-        int movieid=getIntent().getExtras().getInt("movieId");
-        String poster=getIntent().getExtras().getString("movieImage");
-        String rating=getIntent().getExtras().getString("ratings");
+    public void saveFavorite(List<MovieItem> movieItem) {
 
 
-        favorite.setId(movieid);
+        ContentValues contentValues= new ContentValues();
+        contentValues.put(FavoriteContract.FavouriMovCon.COLUMN_MOVIEID,movieItem.get(0).getId());
+        contentValues.put(FavoriteContract.FavouriMovCon.COLUMN_TITLE,movieItem.get(0).getTitle());
+        contentValues.put(FavoriteContract.FavouriMovCon.COLUMN_USERRATING,movieItem.get(0).getVoteAverage());
+        contentValues.put(FavoriteContract.FavouriMovCon.COLUMN_POSTER_PATH,movieItem.get(0).getPosterPath());
+        contentValues.put(FavoriteContract.FavouriMovCon.COLUMN_PLOT_REVIEW,movieItem.get(0).getOverview());
+        getContentResolver().insert(FavoriteContract.FavouriMovCon.CONTENT_URI,contentValues);
+    }
 
-        favorite.setPosterPath(poster);
-        favorite.setTitle(title.getText().toString().trim());
-        favorite.setVoteAverage(Double.parseDouble(rating));
-        favorite.setOverview(review.getText().toString().trim());
+    public void deleteMovies(List<MovieItem> movieItem)
+    {
 
-        favMovDBHelper.addFavorite(favorite);
+        String selection= FavoriteContract.FavouriMovCon.COLUMN_MOVIEID+ "=?";
+        String[] selectionArgs={String.valueOf(movieItem.get(0).getId())};
+        getContentResolver().delete(FavoriteContract.FavouriMovCon.CONTENT_URI,selection,selectionArgs);
+    }
+    public boolean FavoriteMovieDB(List<MovieItem> item)
+    {
+        Cursor cursor=getContentResolver().query(FavoriteContract.FavouriMovCon.CONTENT_URI,
+                null,null,null,null,null);
+        if(cursor != null)
+        {
+            while (cursor.moveToNext())
+            {
+                int movieId=cursor.getInt(cursor.getColumnIndex(FavoriteContract.FavouriMovCon.COLUMN_MOVIEID));
+                if(movieId==item.get(0).getId())
+                {
+                    return true;
+                }
+            }
+        }if(cursor != null){
+            cursor.close();
+    }
+    return false;
+    }
+
+    private void setDetails(List<MovieItem> item)
+    {
+        Picasso.with(getApplicationContext()).load("http://image.tmdb.org/t/p/w185/"+item.get(0).getPosterPath()).into(movieImage);
+        title.setText(item.get(0).getTitle());
+        releaseDate.setText(item.get(0).getReleaseDate());
+        ratings.setText( String.valueOf(item.get(0).getVoteAverage()));
+        review.setText(item.get(0).getOverview());
+
     }
 }

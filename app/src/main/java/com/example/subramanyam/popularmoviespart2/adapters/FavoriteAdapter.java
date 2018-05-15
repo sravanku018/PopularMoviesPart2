@@ -26,42 +26,14 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
     public void swapCursor(Cursor cursor1)
     {
-        if(cursor != null)
-        {
-          cursor.close();
-        }
+
         cursor=cursor1;
         if(cursor1 != null)
         {
             this.notifyDataSetChanged();
         }
-    }
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.movielist_favorite,null);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        cursor.moveToPosition(position);
-
-        String posterPath=cursor.getString(cursor.getColumnIndex(FavoriteContract.FavouriMovCon.COLUMN_POSTER_PATH));
-        Picasso.with(holder.favImage.getContext()).load("http://image.tmdb.org/t/p/w185/"+posterPath).into(holder.favImage);
 
     }
-
-    @Override
-    public int getItemCount() {
-       if(cursor==null)
-       {
-           return 0;
-       }
-
-       return cursor.getCount();
-    }
-
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
     {
 
@@ -92,4 +64,31 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             return favMovie;
         }
     }
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.movielist_favorite,null);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        cursor.moveToPosition(position);
+
+        String posterPath=cursor.getString(cursor.getColumnIndex(FavoriteContract.FavouriMovCon.COLUMN_POSTER_PATH));
+        Picasso.with(holder.favImage.getContext()).load("http://image.tmdb.org/t/p/w185/"+posterPath).into(holder.favImage);
+
+    }
+
+    @Override
+    public int getItemCount() {
+       if(cursor==null)
+       {
+           return 0;
+       }
+
+       return cursor.getCount();
+    }
+
+
 }

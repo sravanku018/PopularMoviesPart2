@@ -3,7 +3,6 @@ package com.example.subramanyam.popularmoviespart2.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class FavMovDBHelper extends SQLiteOpenHelper {
 
@@ -20,15 +19,8 @@ public class FavMovDBHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public void open() {
-        Log.i(LOGTAG, "database opened");
-        db = dbhandler.getWritableDatabase();
-    }
 
-    public void close() {
-        Log.i(LOGTAG, "databaseclosed");
-        dbhandler.close();
-    }
+
 
 
     @Override

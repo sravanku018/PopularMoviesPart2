@@ -26,7 +26,6 @@ import com.example.subramanyam.popularmoviespart2.data.TrailerData;
 import com.example.subramanyam.popularmoviespart2.data.TrailerResponse;
 import com.example.subramanyam.popularmoviespart2.database.FavMovDBHelper;
 import com.example.subramanyam.popularmoviespart2.database.FavoriteContract;
-import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -65,9 +64,7 @@ public class DetailsView extends AppCompatActivity {
     ReviewView reviewView;
 
 
-    private final DetailsView activity=DetailsView.this;
-    private MovieItem favorite;
-    MaterialFavoriteButton favorite1;
+
     ImageButton imageFavorite;
     List<MovieItem> items;
     Gson gson;

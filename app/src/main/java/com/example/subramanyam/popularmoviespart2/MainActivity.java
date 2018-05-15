@@ -200,7 +200,7 @@ recyclerView.hasFixedSize();
 
         if (selectedOption == R.id.action_favorites) {
 
-            viewData();
+            viewData2();
 
         }
 

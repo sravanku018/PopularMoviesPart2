@@ -83,7 +83,7 @@ public class DetailsView extends AppCompatActivity {
         imageFavorite=findViewById(R.id.imageButton);
         gson=new Gson();
 
-        Bundle movieData=getIntent().getExtras();
+
         array= getIntent().getStringExtra("movieDetails");
 
         Log.i("irkjafh", String.valueOf(items));

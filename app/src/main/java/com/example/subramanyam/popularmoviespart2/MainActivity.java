@@ -1,6 +1,5 @@
 package com.example.subramanyam.popularmoviespart2;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
@@ -21,7 +20,6 @@ import com.example.subramanyam.popularmoviespart2.api.Client;
 import com.example.subramanyam.popularmoviespart2.api.Service;
 import com.example.subramanyam.popularmoviespart2.data.MovResponse;
 import com.example.subramanyam.popularmoviespart2.data.MovieItem;
-import com.example.subramanyam.popularmoviespart2.database.FavMovDBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private RecyclerView recyclerView;
     private MovieView movieView;
     private List<MovieItem> resultsItems;
-    private AppCompatActivity activity = MainActivity.this;
-    private FavMovDBHelper favMovDBHelper;
+
+    GridLayoutManager layoutManager;
+    private int selectedOption = R.id.action_popular;
+
+
+
+
 
     public static final int ID_FAVORITES_LOADER = 11;
 
@@ -44,27 +47,37 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.movieImages);
-        GridLayoutManager gridLayoutManager=new GridLayoutManager(this,getSpan());
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.hasFixedSize();
-        if(savedInstanceState==null)
-        {
-            viewData();
+layoutManager = new GridLayoutManager(this, getSpan());
+recyclerView.setLayoutManager(layoutManager);
+recyclerView.hasFixedSize();
+        if (savedInstanceState == null) {
+
             isInternetOn();
-        }else
-        {
-            checkSortOrder();
+
+        } else {
+
+            loadAdapterPerOptionSelected(
+
+                    savedInstanceState.getInt("optionSelected", R.id.action_popular));
 
         }
 
-    }
 
+    }
 
     @Override
+
     protected void onSaveInstanceState(Bundle outState) {
+
         super.onSaveInstanceState(outState);
-        checkSortOrder();
+
+        outState.putInt("optionSelected", selectedOption);
+
     }
+
+
+
+
 
     public void viewData() {
 
@@ -76,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         recyclerView.setAdapter(movieView);
         movieView.notifyDataSetChanged();
 
-        checkSortOrder();
+        //checkSortOrder();
     }
 
     public void viewData2() {
@@ -130,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             @Override
             public void onResponse(@NonNull Call<MovResponse> call, @NonNull Response<MovResponse> response) {
                 List<MovieItem> itemList = response.body().getResults();
+
                 recyclerView.setAdapter(new MovieView(getApplicationContext(), itemList));
 
                 Log.i("sffsf", itemList.toString());
@@ -155,16 +169,42 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+      /*  switch (item.getItemId()) {
             case R.id.menu_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
+        }*/
+        loadAdapterPerOptionSelected(item.getItemId());
+
+        return super.onOptionsItemSelected(item);
     }
 
+    private void loadAdapterPerOptionSelected(int selectedOption) {
+
+        this.selectedOption = selectedOption;
+
+        if (selectedOption == R.id.action_popular) {
+
+          loadData();
+
+        }
+
+        if (selectedOption == R.id.action_top_rated) {
+
+          loadData2();
+
+        }
+
+        if (selectedOption == R.id.action_favorites) {
+
+            viewData();
+
+        }
+
+    }
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         checkSortOrder();
@@ -190,10 +230,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
             return 4;
 
-        }else {
+        } else {
             return 2;
         }
-
 
 
     }
@@ -229,20 +268,22 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return false;
     }
 
-   @Override
-    public void onResume() {
+  /*  @Override
+   public void onResume() {
 
         super.onResume();
         if (isInternetOn()) {
-            if (resultsItems.isEmpty()) {
-                checkSortOrder();
-            } else {
-                checkSortOrder();
+          if (listState != null) {
+                layoutManager.onRestoreInstanceState(listState);
+            }
+            else {
+                {
+                    checkSortOrder();
+
+
+                }
             }
 
-
         }
-    }
-
-
+    }*/
 }

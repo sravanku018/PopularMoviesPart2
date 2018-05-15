@@ -2,8 +2,6 @@ package com.example.subramanyam.popularmoviespart2.data;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 public class MovieItem {
 
 	@SerializedName("overview")
@@ -21,8 +19,6 @@ public class MovieItem {
 	@SerializedName("title")
 	private String title;
 
-	@SerializedName("genre_ids")
-	private List<Integer> genreIds;
 
 	@SerializedName("poster_path")
 	private String posterPath;
@@ -88,13 +84,6 @@ public class MovieItem {
 		return title;
 	}
 
-	public void setGenreIds(List<Integer> genreIds){
-		this.genreIds = genreIds;
-	}
-
-	public List<Integer> getGenreIds(){
-		return genreIds;
-	}
 
 	public void setPosterPath(String posterPath){
 		this.posterPath = posterPath;

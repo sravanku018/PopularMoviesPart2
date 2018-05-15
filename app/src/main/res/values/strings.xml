@@ -59,6 +59,9 @@
     <string name="reviews">TextView</string>
     <string name="favorite">Favorite Movies</string>
     <string name="favoriteimages">favoriteImages</string>
+    <string name="filter_favorites">favorites</string>
+    <string name="filter_top_rated">toprated</string>
+    <string name="filter_popular">popular</string>
 
 
 </resources>
